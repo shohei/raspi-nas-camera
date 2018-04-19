@@ -30,8 +30,8 @@ else:
     print("Invalid numbers of camera. Abort program.")
     exit()
 
-#WAIT_TIME_SEC = 1*60*60 #1 hour
-WAIT_TIME_SEC = 10 #10sec (for debug)
+WAIT_TIME_SEC = 1*60*60 #1 hour
+#WAIT_TIME_SEC = 10 #10sec (for debug)
 
 # start streaming 
 stream_cmd_webcam = '/usr/local/bin/mjpg_streamer -i "input_uvc.so -r 1280x720 -d '+ webcam_device +' -f 30 -q 80" -o "output_http.so -p 8080 -w /usr/local/share/mjpg-streamer/www" &'

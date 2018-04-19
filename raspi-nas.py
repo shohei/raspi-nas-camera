@@ -30,7 +30,8 @@ else:
     print("Invalid numbers of camera. Abort program.")
     exit()
 
-WAIT_TIME_SEC = 1*60*60 #1 hour
+#WAIT_TIME_SEC = 1*60*60 #1 hour
+WAIT_TIME_SEC = 10*60 #10 min.
 #WAIT_TIME_SEC = 10 #10sec (for debug)
 
 # start streaming 

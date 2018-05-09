@@ -9,11 +9,15 @@ import threading
 
 WAIT_TIME_SEC=20
 
-rpis = [{"name":"nozzle1","ip":"192.168.100.192","cameras":[{"name":["webcam","fiberscope"]},{"port":["8080","8081"]}]},
-{"name":"nozzle2","ip":"192.168.100.193","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},
-{"name":"nozzle3","ip":"192.168.100.194","cameras":[{"name":["webcam","fiberscope"]},{"port":["8080","8081"]}]},
-{"name":"perspective","ip":"192.168.100.195","cameras":[{"name":["webcam"]},{"port":["8080"]}]},
-{"name":"topview","ip":"192.168.100.196","cameras":[{"name":["webcam"]},{"port":["8080"]}]}
+#rpis = [{"name":"nozzle1","ip":"192.168.100.192","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},
+#{"name":"nozzle2","ip":"192.168.100.193","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},
+#{"name":"nozzle3","ip":"192.168.100.194","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},
+#{"name":"perspective","ip":"192.168.100.195","cameras":{"name":["webcam"],"port":["8080"]}},
+#{"name":"topview","ip":"192.168.100.196","cameras":{"name":["webcam"],"port":["8080"]}}
+#]
+
+rpis = [{"name":"perspective","ip":"192.168.100.195","cameras":{"name":["webcam"],"port":["8080"]}},
+{"name":"topview","ip":"192.168.100.196","cameras":{"name":["webcam"],"port":["8080"]}}
 ]
 
 def make_filename(device_name,camera_name):
@@ -34,6 +38,7 @@ def record_thread(device_name,camera_name,ip,port):
         print("end recording")
 
 for rpi in rpis:
+  print(rpi)
   device_name = rpi['name']
   ip = rpi['ip']
   cameras = rpi['cameras']
@@ -41,6 +46,6 @@ for rpi in rpis:
   camera_ports = cameras['port']
   for idx,camera_name in enumerate(camera_names):
     port = camera_ports[idx]
-    thread = threading.Thread(target=record_thread(device_name,camera_name,ip,port)
+    thread = threading.Thread(target=record_thread,args=(device_name,camera_name,ip,port))
     thread.start()
 

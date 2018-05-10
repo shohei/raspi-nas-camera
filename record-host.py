@@ -130,5 +130,4 @@ if __name__ == '__main__':
   mClass = MyClass()
   #start_server(mClass) # non-daemon program 
   start_daemon(mClass)
-   
 

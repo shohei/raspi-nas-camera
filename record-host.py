@@ -2,19 +2,20 @@
 #-*- coding:utf-8 -*-
 
 from evdev import InputDevice, categorize, ecodes
-dev = InputDevice('/dev/input/event12') #Keyboard (for debug)
-#dev = InputDevice('/dev/input/event2') #Arduino leonardo
-
 import sys
 import termios
 import contextlib
-
 import time
 import os
 import commands
 from time import gmtime, strftime, localtime
 import pdb
 import threading
+
+output = commands.getstatusoutput("ls -l  /dev/input/by-id/")
+dev_number = list(output)[-1][-1]
+dev = InputDevice('/dev/input/event'+dev_number) #Arduino leonardo
+#dev = InputDevice('/dev/input/event12') #Keyboard (for debug)
 
 #rpis = [{"name":"nozzle1","ip":"192.168.100.192","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},
 #{"name":"nozzle2","ip":"192.168.100.193","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},

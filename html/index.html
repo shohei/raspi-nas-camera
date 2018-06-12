@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Camera monitor</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+      .row > div{
+        margin-bottom: 15px;
+      }
+      .header{
+        min-height: 60px;
+      }
+      .footer{
+        min-height: 40px;
+      }
+      .header, .footer{
+        background: #2f2f2f;
+      }
+      .sidebar{
+        background: #dbdfe5;
+      }
+      .intro{
+        background: #7e8aa0;
+        min-height: 250px;
+      }
+      .section{
+        min-height: 300px;
+        background: #dbdfe5;
+      }
+      .section.bg-alt{
+        background: #b4bac0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Open the output in a new blank tab (Click the arrow next to "Show Output" button) and resize the browser window to understand how the Bootstrap responsive grid system works. -->
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="header"><h1 style="color:white;padding:8px">Camera monitoring system</h1></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-6">
+          <div class="section"><img src="http://192.168.100.192:8080/?action=stream" height="300px" /></div>
+        </div>
+        <div class="col-xs-6">
+          <div class="section"><img src="http://192.168.100.192:8081/?action=stream" height="300px" /></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-6">
+          <div class="section"><img src="http://192.168.100.195:8080/?action=stream" height="300px"/></div>
+        </div>
+        <div class="col-xs-6">
+          <div class="section"><img src="http://192.168.100.196:8081/?action=stream" height="300px" /></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="footer"><h3 style="color:white;padding:8px">Keio University, Social Fabrication Lab</h1></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>                            

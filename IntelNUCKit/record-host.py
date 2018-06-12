@@ -11,6 +11,7 @@ import commands
 from time import gmtime, strftime, localtime
 import pdb
 import threading
+from subprocess import Popen,PIPE
 
 output = commands.getstatusoutput("ls -l  /dev/input/by-id/")
 dev_number = list(output)[-1][-1]
@@ -24,10 +25,35 @@ dev = InputDevice('/dev/input/event'+dev_number) #Arduino leonardo
 #{"name":"topview","ip":"192.168.100.196","cameras":{"name":["webcam"],"port":["8080"]}}
 #]
 
-rpis = [{"name":"nozzle1","ip":"192.168.100.192","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},
-{"name":"perspective","ip":"192.168.100.195","cameras":{"name":["webcam"],"port":["8080"]}},
-{"name":"topview","ip":"192.168.100.196","cameras":{"name":["webcam"],"port":["8080"]}}
-]
+#id_nozzle1_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-4.1.4):'
+#id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-4.2.4):'
+#id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-4.3.4.4):'
+#id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-4.4.4):'
+id_nozzle1_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-1.4):'
+id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-4.2.4):'
+id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-4.3.4.4):'
+id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-2.4):'
+
+def find_cam(cam):
+    cmd = ["sudo","/usr/bin/v4l2-ctl", "--list-devices"]
+    out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
+    out, err = out.strip(), err.strip()
+    for l in [i.split("\n\t") for i in out.split("\n\n")]:
+        if cam in l[0]:
+            return l[1]
+    return False
+
+device_nozzle1_webcam = find_cam(id_nozzle1_webcam)
+device_topview = find_cam(id_topview)
+device_nozzle1_fiberscope = find_cam(id_nozzle1_fiberscope)
+device_perspective_webcam = find_cam(id_perspective_webcam)
+print(device_nozzle1_webcam,device_topview,device_nozzle1_fiberscope,device_perspective_webcam)
+
+
+# rpis = [{"name":"nozzle1","ip":"192.168.100.192","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},
+# {"name":"perspective","ip":"192.168.100.195","cameras":{"name":["webcam"],"port":["8080"]}},
+# {"name":"topview","ip":"192.168.100.196","cameras":{"name":["webcam"],"port":["8081"]}}
+# ]
 
 class MyClass():
   def __init__(self):
@@ -71,6 +97,34 @@ def start_record(mClass):
       port = camera_ports[idx]
       job = Job(device_name,camera_name,ip,port)
       mClass.threads.append(job)
+
+def start_record_standalone():
+    filename = make_filename("topview","webcam")
+    cmd = "sudo ffmpeg -f v4l2 -framerate 30 -video_size 1280x720 -input_format mjpeg -i "+device_topview+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+    print(cmd)
+    os.system(cmd)
+
+    time.sleep(2) 
+
+    filename = make_filename("nozzle1","webcam")
+    cmd = "sudo ffmpeg  -i "+device_nozzle1_webcam+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+    print(cmd)
+    os.system(cmd)
+    
+    time.sleep(2) 
+
+    filename = make_filename("nozzle1","webcam")
+    filename = make_filename("nozzle1","fiberscope")
+    cmd = "sudo ffmpeg -f v4l2 -framerate 30 -video_size 1280x720 -i "+device_nozzle1_fiberscope+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+    print(cmd)
+    os.system(cmd)
+    
+    time.sleep(2) 
+
+    filename = make_filename("perspective","webcam")
+    cmd = "sudo ffmpeg -i "+device_perspective_webcam+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+    print(cmd)
+    os.system(cmd)
 
 def kill_threads(mClass):
   jobs = mClass.threads
@@ -121,13 +175,14 @@ def start_daemon(mClass):
       mClass.current = event.code
       if((mClass.last==0 or mClass.last==48) and mClass.current==30): # a is pushed
         print('on')
-        start_record(mClass)
+        start_record_standalone()
       elif((mClass.last==0 or mClass.last==30) and mClass.current==48): # b is pushed
         print('off')
-        kill_threads(mClass)
+        kill_ffmpeg()
       mClass.last = mClass.current
 
 if __name__ == '__main__':
   mClass = MyClass()
   #start_server(mClass) # non-daemon program 
   start_daemon(mClass)
+

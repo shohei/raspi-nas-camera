@@ -13,8 +13,11 @@ import pdb
 import threading
 from subprocess import Popen,PIPE
 
-output = commands.getstatusoutput("ls -l  /dev/input/by-id/")
-dev_number = list(output)[-1][-1]
+status,output = commands.getstatusoutput("ls -l  /dev/input/by-id/ | sed '1d'")
+dev_number = 0
+for o in output.split("\n"):
+    if "Leonardo" in o:
+        dev_number = o[-1]
 dev = InputDevice('/dev/input/event'+dev_number) #Arduino leonardo
 #dev = InputDevice('/dev/input/event12') #Keyboard (for debug)
 
@@ -29,10 +32,15 @@ dev = InputDevice('/dev/input/event'+dev_number) #Arduino leonardo
 #id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-4.2.4):'
 #id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-4.3.4.4):'
 #id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-4.4.4):'
-id_nozzle1_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-1.4):'
-id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-4.2.4):'
-id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-4.3.4.4):'
-id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-2.4):'
+#id_nozzle1_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-1.4):'
+#id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-4.2.4):'
+#id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-4.3.4.4):'
+#id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-2.4):'
+id_nozzle1_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-2.4):'
+id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-4.1.4.4):'
+id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-1.4):'
+id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-4.2.4):'
+
 
 def find_cam(cam):
     cmd = ["sudo","/usr/bin/v4l2-ctl", "--list-devices"]

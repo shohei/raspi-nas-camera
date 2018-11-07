@@ -17,6 +17,7 @@ status,output = commands.getstatusoutput("ls -l  /dev/input/by-id/ | sed '1d'")
 dev_number = 0
 for o in output.split("\n"):
     if "Leonardo" in o:
+        o = o.split("event")
         dev_number = o[-1]
 dev = InputDevice('/dev/input/event'+dev_number) #Arduino leonardo
 #dev = InputDevice('/dev/input/event12') #Keyboard (for debug)
@@ -36,11 +37,11 @@ dev = InputDevice('/dev/input/event'+dev_number) #Arduino leonardo
 #id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-4.2.4):'
 #id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-4.3.4.4):'
 #id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-2.4):'
-id_nozzle1_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-2.4):'
-id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-4.1.4.4):'
-id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-1.4):'
-id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-4.2.4):'
-
+id_nozzle1_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-4.3.2.2):'
+id_nozzle1_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-1.2.2.4):'
+id_nozzle2_fiberscope = 'USB2.0 PC CAMERA: USB2.0 PC CAM (usb-0000:00:14.0-2.2.2.4):'
+id_topview = 'USB 2.0 Camera: HD USB Camera (usb-0000:00:14.0-4.2.4):'
+id_perspective_webcam = 'UVC Camera (046d:0825) (usb-0000:00:14.0-4.1.4):'
 
 def find_cam(cam):
     cmd = ["sudo","/usr/bin/v4l2-ctl", "--list-devices"]
@@ -51,12 +52,17 @@ def find_cam(cam):
             return l[1]
     return False
 
-device_nozzle1_webcam = find_cam(id_nozzle1_webcam)
 device_topview = find_cam(id_topview)
-device_nozzle1_fiberscope = find_cam(id_nozzle1_fiberscope)
 device_perspective_webcam = find_cam(id_perspective_webcam)
-print(device_nozzle1_webcam,device_topview,device_nozzle1_fiberscope,device_perspective_webcam)
+device_nozzle1_webcam = find_cam(id_nozzle1_webcam)
+device_nozzle1_fiberscope = find_cam(id_nozzle1_fiberscope)
+device_nozzle2_fiberscope = find_cam(id_nozzle2_fiberscope)
 
+print(device_topview,
+      device_nozzle1_webcam,
+      device_nozzle1_fiberscope,
+      device_nozzle2_fiberscope,
+      device_perspective_webcam)
 
 # rpis = [{"name":"nozzle1","ip":"192.168.100.192","cameras":{"name":["webcam","fiberscope"],"port":["8080","8081"]}},
 # {"name":"perspective","ip":"192.168.100.195","cameras":{"name":["webcam"],"port":["8080"]}},
@@ -107,32 +113,40 @@ def start_record(mClass):
       mClass.threads.append(job)
 
 def start_record_standalone():
-    filename = make_filename("topview","webcam")
-    cmd = "sudo ffmpeg -f v4l2 -framerate 30 -video_size 1280x720 -input_format mjpeg -i "+device_topview+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
-    print(cmd)
-    os.system(cmd)
+    if device_topview:
+        filename = make_filename("topview","webcam")
+        cmd = "sudo ffmpeg -f v4l2 -framerate 30 -video_size 1280x720 -input_format mjpeg -i "+device_topview+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+        print(cmd)
+        os.system(cmd)
+        time.sleep(2) 
 
-    time.sleep(2) 
+    if device_nozzle1_webcam:
+        filename = make_filename("nozzle1","webcam")
+        cmd = "sudo ffmpeg  -i "+device_nozzle1_webcam+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+        print(cmd)
+        os.system(cmd)
+        time.sleep(2) 
 
-    filename = make_filename("nozzle1","webcam")
-    cmd = "sudo ffmpeg  -i "+device_nozzle1_webcam+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
-    print(cmd)
-    os.system(cmd)
-    
-    time.sleep(2) 
+    if device_nozzle1_fiberscope:
+        filename = make_filename("nozzle1","fiberscope")
+        cmd = "sudo ffmpeg -f v4l2 -framerate 30 -video_size 1280x720 -i "+device_nozzle1_fiberscope+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+        print(cmd)
+        os.system(cmd)
+        time.sleep(2) 
+   
+    if device_perspective_webcam:
+        filename = make_filename("perspective","webcam")
+        cmd = "sudo ffmpeg -i "+device_perspective_webcam+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+        print(cmd)
+        os.system(cmd)
+        time.sleep(2) 
 
-    filename = make_filename("nozzle1","webcam")
-    filename = make_filename("nozzle1","fiberscope")
-    cmd = "sudo ffmpeg -f v4l2 -framerate 30 -video_size 1280x720 -i "+device_nozzle1_fiberscope+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
-    print(cmd)
-    os.system(cmd)
-    
-    time.sleep(2) 
-
-    filename = make_filename("perspective","webcam")
-    cmd = "sudo ffmpeg -i "+device_perspective_webcam+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
-    print(cmd)
-    os.system(cmd)
+    if device_nozzle2_fiberscope:
+        filename = make_filename("nozzle2","fiberscope")
+        cmd = "sudo ffmpeg -f v4l2 -framerate 30 -video_size 1280x720 -i "+device_nozzle2_fiberscope+" -q:v 3 "+filename+" >/dev/null 2>&1 &"
+        print(cmd)
+        os.system(cmd)
+        time.sleep(2) 
 
 def kill_threads(mClass):
   jobs = mClass.threads

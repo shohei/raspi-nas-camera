@@ -1,6 +1,7 @@
 from evdev import InputDevice, categorize, ecodes
 #dev = InputDevice('/dev/input/event12') #Keyboard (for debug)
-dev = InputDevice('/dev/input/event6') #Arduino leonardo
+#dev = InputDevice('/dev/input/event6') #Arduino leonardo
+dev = InputDevice('/dev/input/event11') #Arduino leonardo
 
 last = 0
 current = 0
